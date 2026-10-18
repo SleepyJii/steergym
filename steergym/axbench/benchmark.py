@@ -184,11 +184,8 @@ class Concept500Benchmark(SteerBenchmark, PolarBenchmark):
         return pl.concat(frames).select("concept_id", "prompt", "winning", "losing", "meta")
 
     def evals(self) -> list:
-        # AxBench's own judge protocol (gpt-4o-mini, 0-2 scales, harmonic-mean
-        # leaderboard aggregation) is not implemented here, and no substitute
-        # judge is baked in: judge choice is a runscript decision
-        raise NotImplementedError(
-            "Concept500Benchmark defines data, not judges: AxBench's gpt-4o-mini "
-            "leaderboard judges are not implemented. Assemble an eval set in the "
-            "runscript -- steergym.evals.judges provides a local digit-judge panel "
-            "(scores are not comparable to leaderboard numbers without calibration).")
+        # the paper's own judges (gpt-4o-mini, three 0-2 ratings per row);
+        # the leaderboard aggregate is evals.lm_judge_rating (strict harmonic
+        # mean) + a groupby, both runscript concerns
+        from .evals import AxbenchConceptEval, AxbenchFluencyEval, AxbenchInstructEval
+        return [AxbenchConceptEval(), AxbenchInstructEval(), AxbenchFluencyEval()]

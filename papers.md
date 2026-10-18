@@ -9,6 +9,7 @@ subpackage README records the upstream repo/commit and all adaptation deltas.
 - `DiffMeanModel`: difference-of-means rows (closed form)
 - `AxbenchPromptSteerModel`: the paper's prompt-steering arm
 - `Concept500Benchmark`: concepts, AlpacaEval steering prompts, factor × max-act dosing, latent max-act pass
+- `AxbenchConceptEval` / `AxbenchInstructEval` / `AxbenchFluencyEval`: the leaderboard's gpt-4o-mini 0-2 judges, verbatim templates; strict-harmonic-mean aggregate via `lm_judge_rating`
 - released dictionaries `pyvene/gemma-{reft-r1,diffmean}-2b-it-res` (verification anchors)
 
 ## Improved Representation Steering for Language Models (RePS)

@@ -50,11 +50,15 @@ ours), and every adaptation delta.
 
 Full paper list with per-class attribution: [papers.md](papers.md).
 
-Judges: paper-defined evals ship with their benchmarks (IFEval checkers,
-Stolfo perplexity/quality gates, persona_vectors' verbatim API judges); a
-generic local digit-token judge panel lives in `steergym/evals/judges.py`
-for API-free scoring, assembled explicitly in runscripts and never baked
-into a paper benchmark.
+Judges: each benchmark's `evals()` returns its paper's own evals, trivially
+constructed (AxBench's gpt-4o-mini 0-2 judges, IFEval checkers, Stolfo
+perplexity/quality gates, persona_vectors' verbatim API judges). Every eval
+declares its resources: `execution` (`local`/`gpu`/`api`) and, for API
+judges, `api_key_env` — constructing one without that env var set emits a
+`MissingAPIKeyWarning` up front rather than failing mid-run. A generic local
+digit-token judge panel lives in `steergym/evals/judges.py` for API-free
+scoring, assembled explicitly in runscripts and never baked into a paper
+benchmark.
 
 ## Conventions
 

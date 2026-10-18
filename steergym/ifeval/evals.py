@@ -133,6 +133,7 @@ class StolfoQualityEval(Eval):
     Real API spend — never enable by default."""
 
     execution = "api"
+    api_key_env = "OPENAI_API_KEY"
     config_cls = QualityEvalConfig
 
     STAGE_A_PROMPT = (

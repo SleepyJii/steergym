@@ -99,6 +99,7 @@ class PersonaJudgeEvalConfig(EvalConfig):
 
 class _PersonaVectorJudgeEval(Eval):
     execution = "api"
+    api_key_env = "OPENAI_API_KEY"
     config_cls = PersonaJudgeEvalConfig
     column = None
 
