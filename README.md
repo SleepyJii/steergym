@@ -3,6 +3,54 @@
 Clean, unified re-implementations of published LLM activation-steering
 methods and their benchmarks, behind one small shared interface.
 
+## Contents
+
+### Methods
+
+| paper | submodule | method | descr |
+|---|---|---|---|
+| [AxBench](https://arxiv.org/abs/2501.17148) (Wu et al. 2025) | `reps/` | `LsReFTModel` | ReFT-r1 rank-1 rows, TopKReLU training |
+| AxBench | `axbench/` | `DiffMeanModel` | difference-of-means rows, closed form |
+| AxBench | `axbench/` | `AxbenchPromptSteerModel` | the paper's prompt-steering arm |
+| [RePS](https://arxiv.org/abs/2505.20809) (Wu et al. 2025) | `reps/` | `PreferenceVectorModel` | rank-1 rows, scaled-SimPO preference training |
+| [ODESteer](https://github.com/ZhaoHongjue/odesteer) (ICLR 2026) | `odesteer/` | `ODESteerModel`, `StepODESteerModel` | ODE flow along a learned density-ratio field |
+| CAA (Rimsky et al. 2024) | `odesteer/` | `CAAModel` | mean-difference contrast vector |
+| RepE (Zou et al. 2023) | `odesteer/` | `RepEModel` | PCA-1 of paired contrast diffs |
+| ITI probe (as bundled in ODESteer) | `odesteer/` | `ITIProbeModel` | logistic-probe direction |
+| LinAcT / MiMiC (as bundled in ODESteer) | `odesteer/` | `LinActModel`, `MiMiCModel` | linear / gated Gaussian-OT transport transforms |
+| [AcT](https://arxiv.org/abs/2410.23054) (Rodriguez et al. 2024) | `acttransport/` | `MeanAcTModel`, `LinearAcTModel` | sequential multi-module transport maps |
+| [PID Steering](https://arxiv.org/abs/2510.04309) (Nguyen et al.) | `acttransport/` | `PIDAcTModel` | per-coordinate PID setpoint control |
+| [A-LQR](https://arxiv.org/abs/2604.19018) | `alqr/` | `ALQRModel` | per-layer LQR feedback tracking a contrastive setpoint |
+| A-LQR (its own ablation) | `alqr/` | `SPIDModel` | S-PID setpoint controller |
+| [GCAD](https://arxiv.org/abs/2605.10664) | `gcad/` | `GCADModel` | gated cropped attention-delta steering |
+| [FLAS](https://arxiv.org/abs/2605.05892) (NeurIPS 2026) | `flas/` | `CachedFLASSteerModel` | published flow checkpoints, inference-only |
+| [Persona Vectors](https://arxiv.org/abs/2507.21509) (Chen et al. 2025) | `personavec/` | `PersonaVectorModel` | zero-train trait rows |
+| [Stolfo et al. 2024](https://arxiv.org/abs/2410.12877) | `ifeval/` | `StolfoDiffMeanModel` | last-token diff-mean instruction vectors |
+| — (common baseline) | `models/` | `PromptSteerModel` | prompt steering as a peer method |
+
+### Benchmarks
+
+| paper | benchmark | descr |
+|---|---|---|
+| AxBench | `Concept500Benchmark` | 500 SAE concepts, AlpacaEval steering prompts, latent max-act dosing pass |
+| IFEval (Zhou et al. 2023) + Stolfo et al. 2024 | `IFEvalBenchmark` | verifiable instructions as concepts; generative pack building from the vendored augmented pool |
+| Persona Vectors | `PersonaVectorsBenchmark` | the 7 published traits as concepts; upstream rollout + effective-pair filter protocol |
+
+### Evals
+
+| eval | benchmark | descr |
+|---|---|---|
+| `AxbenchConceptEval`, `AxbenchInstructEval`, `AxbenchFluencyEval` | Concept500 | the leaderboard's gpt-4o-mini 0-2 judges, verbatim templates; strict-harmonic-mean aggregate via `lm_judge_rating` |
+| `IFEvalEval` | IFEval | official vendored checkers, strict + loose |
+| `StolfoPerplexityEval` | IFEval | GPT-2 perplexity degeneracy gate |
+| `StolfoQualityEval` | IFEval | the paper's two-stage LM quality judge (opt-in API spend) |
+| `TraitEval`, `CoherenceEval` | PersonaVectors | the paper's own 0-100 logprob-aggregated API judges |
+| `CoherencyEval`, `MentionsEval`, `ExpressionEval` (`evals/judges.py`) | — (generic) | local digit-token judge panel, API-free; assembled in runscripts, never returned by a benchmark |
+
+Each method subpackage README records the upstream repo/commit, a provenance
+map (upstream file:line → ours), and every adaptation delta. Full paper list
+with per-class attribution: [papers.md](papers.md).
+
 ## The object model
 
 Four peer families, all `Thing(config)` with one dataclass config per
@@ -24,41 +72,14 @@ saved artifact's config is its provenance.
   coefficient grids and groupbys are runscript concerns.
 - **`Eval`** (`steergym/evals/base.py`) — `score(rows, concepts)` returns
   per-row columns aligned to the results table; aggregation is a groupby.
+  A benchmark's `evals()` returns its paper's own evals, trivially
+  constructed. Every eval declares its resources: `execution`
+  (`local`/`gpu`/`api`) and, for API judges, `api_key_env` — constructing
+  one without that env var set emits a `MissingAPIKeyWarning` up front
+  rather than failing mid-run.
 - Shared machinery: `generator.py` (`GeneratorLM` subject loading +
   generation under contexts), `helpers.py` (`steer_sweep`),
   `activations.py`, `training_helpers.py`.
-
-## Methods
-
-| package | methods | paper |
-|---|---|---|
-| `reps/` | `LsReFTModel` (ReFT-r1), `PreferenceVectorModel` (RePS) | AxBench (Wu et al. 2025), RePS (Wu et al. 2025) |
-| `axbench/` | `DiffMeanModel`, `AxbenchPromptSteerModel`, released-dictionary loading | AxBench (Wu et al. 2025) |
-| `odesteer/` | `CAAModel`, `RepEModel`, `ITIProbeModel`, `LinActModel`, `MiMiCModel`, `ODESteerModel` | ODESteer (ICLR 2026) + its bundled baselines |
-| `acttransport/` | `MeanAcTModel`, `LinearAcTModel`, `PIDAcTModel` | AcT (Rodriguez et al. 2024), PID-AcT (Nguyen et al.) |
-| `alqr/` | `ALQRModel`, `SPIDModel` (closed-loop controllers) | A-LQR (2025), S-PID |
-| `gcad/` | `GCADModel` (gated cropped attention-delta) | GCAD (2025) |
-| `flas/` | `CachedFLASSteerModel` (published checkpoints, inference-only) | FLAS (NeurIPS 2026) |
-| `personavec/` | `PersonaVectorModel` | Persona Vectors (Chen et al. 2025) |
-| `ifeval/` | `StolfoDiffMeanModel` | Stolfo et al. 2024 |
-| `models/` | `PromptSteerModel` | prompt-steering baseline |
-
-Benchmarks: `Concept500Benchmark` (AxBench), `IFEvalBenchmark` (official
-checkers vendored), `PersonaVectorsBenchmark`. Each subpackage README
-records the upstream repo/commit, a provenance map (upstream file:line →
-ours), and every adaptation delta.
-
-Full paper list with per-class attribution: [papers.md](papers.md).
-
-Judges: each benchmark's `evals()` returns its paper's own evals, trivially
-constructed (AxBench's gpt-4o-mini 0-2 judges, IFEval checkers, Stolfo
-perplexity/quality gates, persona_vectors' verbatim API judges). Every eval
-declares its resources: `execution` (`local`/`gpu`/`api`) and, for API
-judges, `api_key_env` — constructing one without that env var set emits a
-`MissingAPIKeyWarning` up front rather than failing mid-run. A generic local
-digit-token judge panel lives in `steergym/evals/judges.py` for API-free
-scoring, assembled explicitly in runscripts and never baked into a paper
-benchmark.
 
 ## Conventions
 
