@@ -7,8 +7,10 @@ Paper-faithful port of the Activation-Transport family:
   Apple sample-code license, non-OSI — used/modified under its own terms,
   notice kept; cleanroom torch port, not vendored) — `MeanAcTModel` and
   `LinearAcTModel`.
-- **PID-AcT** (Nguyen et al., the Mean-AcT fork at
+- **PID Steering** (Nguyen et al., arXiv 2510.04309, the Mean-AcT fork at
   github.com/dungnvnus/pid-steering @ `d705c44`, MIT) — `PIDAcTModel`.
+  "PID-AcT" is this library's alias for the method, after its Mean-AcT
+  lineage.
 
 All three are `SteerModel`s whose fit is a SEQUENTIAL (causal) loop over an
 arbitrary set of modules (not a single decoder layer) and whose context is

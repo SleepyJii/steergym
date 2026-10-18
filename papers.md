@@ -24,9 +24,9 @@ subpackage README records the upstream repo/commit and all adaptation deltas.
 (Rodriguez et al.) — [arXiv:2410.23054](https://arxiv.org/abs/2410.23054), code: apple/ml-act
 - `MeanAcTModel`, `LinearAcTModel`: sequential multi-module transport maps (mean shift / 1-D sort-based linear OT with support masking)
 
-## PID-AcT
-(Nguyen et al.) — the Mean-AcT PID-control fork, code: dungnvnus/pid-steering
-- `PIDAcTModel`: per-coordinate PID law (canonical paper form + a `repo_compat` mode reproducing the released code's degenerate law)
+## PID Steering
+(Nguyen et al.) — [arXiv:2510.04309](https://arxiv.org/abs/2510.04309), code: dungnvnus/pid-steering (a Mean-AcT fork)
+- `PIDAcTModel` ("PID-AcT" is this library's alias for the method): per-coordinate PID law (canonical paper form + a `repo_compat` mode reproducing the released code's degenerate law)
 
 ## Local Linearity of LLMs Enables Activation Steering via Model-Based Linear Optimal Control (A-LQR)
 — [arXiv:2604.19018](https://arxiv.org/abs/2604.19018)
