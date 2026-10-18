@@ -69,8 +69,7 @@ gradient training).
   constructed on first `score()` call, honors `OPENAI_BASE_URL` (env or
   `PersonaJudgeEvalConfig.base_url`) for pointing at a local OpenAI-compatible server to
   avoid spend, and refuses loudly (`RuntimeError`) if `OPENAI_API_KEY` is
-  unset or equals the known placeholder
-  (`"dummy-key-never-called-in-mixin"`).
+  unset.
 
 ## Benchmark (the adapter step, landed after the eval/model port)
 

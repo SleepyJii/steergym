@@ -162,8 +162,8 @@ class StolfoQualityEval(Eval):
             import os
             import openai
             key = os.environ.get("OPENAI_API_KEY", "")
-            if not key or key == "dummy-key-never-called-in-mixin":
-                raise RuntimeError("StolfoQualityEval needs a real OPENAI_API_KEY")
+            if not key:
+                raise RuntimeError("StolfoQualityEval needs OPENAI_API_KEY")
             self._client = openai.OpenAI(api_key=key)
         return self._client
 

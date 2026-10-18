@@ -12,9 +12,6 @@ HERE = Path(__file__).resolve().parent
 VENDOR_PROMPTS_PATH = HERE / "vendor" / "persona_vectors" / "reference" / "eval" / "prompts.py"
 
 DEFAULT_JUDGE_MODEL = "gpt-4.1-mini-2025-04-14"  # persona_vectors reference/eval/eval_persona.py:137
-# not redundant with the env check: job environments may export a placeholder
-# key, so a stage sharing that env sees a key that is set but unusable
-DUMMY_KEY = "dummy-key-never-called-in-mixin"
 
 # Verbatim shared suffix of trait_data_eval/*.json's `eval_prompt` field,
 # common to all 7 upstream traits (verified byte-identical across traits at
@@ -69,9 +66,9 @@ def aggregate_0_100_score(logprob_dict):
 def _ensure_client(base_url=None):
     import openai
     key = os.environ.get("OPENAI_API_KEY", "")
-    if not key or key == DUMMY_KEY:
+    if not key:
         raise RuntimeError(
-            f"personavec judges need a real OPENAI_API_KEY (got {key!r}); "
+            "personavec judges need OPENAI_API_KEY; "
             "set OPENAI_BASE_URL to point at a local OpenAI-compatible server "
             "(e.g. vllm) to avoid external spend.")
     kwargs = {"api_key": key}

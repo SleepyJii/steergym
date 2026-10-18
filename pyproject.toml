@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "steergym"
+version = "0.1.0"
+description = "Clean, unified re-implementations of published LLM activation-steering methods and their benchmarks, behind one small shared interface"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "SleepyJii" }]
+requires-python = ">=3.10"
+# `import steergym` works with just this; everything heavier imports lazily
+dependencies = ["polars>=1.0"]
+
+[project.optional-dependencies]
+# fitting/steering subject models and the local GPU judge panel
+torch = ["torch>=2.1", "transformers>=4.45", "huggingface_hub"]
+# Concept500Benchmark (pandas only for exact AlpacaEval row-sampling parity)
+concept500 = ["pandas"]
+# IFEvalBenchmark's vendored official checkers
+ifeval = ["absl-py", "langdetect", "nltk", "immutabledict"]
+# the paper-faithful API judges (personavec, StolfoQualityEval)
+api-judges = ["openai"]
+all = ["steergym[torch,concept500,ifeval,api-judges]"]
+
+[project.urls]
+Repository = "https://github.com/SleepyJii/steergym"
+
+[tool.setuptools.packages.find]
+include = ["steergym*"]
+
+[tool.setuptools.package-data]
+# vendored data rides in the wheel: Stolfo pool (jsonl), persona_vectors
+# trait JSONs + prompts, licenses/commit pins
+steergym = ["**/vendor/**/*.json", "**/vendor/**/*.jsonl", "**/vendor/**/*.md",
+            "**/vendor/**/LICENSE*", "**/vendor/**/UPSTREAM_COMMIT"]
